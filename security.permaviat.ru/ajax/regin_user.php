@@ -1,28 +1,27 @@
 <?php
-	session_start();
-	include("../settings/connect_datebase.php");
-	
-	$login = $_POST['login'];
-	$password = $_POST['password'];
+session_start();
+include("../settings/connect_datebase.php");
 
-	function checkPasswordComplexity($password) {
-		return preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password);
-	}
-	
-	// ищем пользователя
-	$query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='".$login."'");
-	$id = -1;
-	
-	if($user_read = $query_user->fetch_row()) {
-		echo $id;
-	} else {
-		$mysqli->query("INSERT INTO `users`(`login`, `password`, `roll`) VALUES ('".$login."', '".$password."', 0)");
-		
-		$query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='".$login."' AND `password`= '".$password."';");
-		$user_new = $query_user->fetch_row();
-		$id = $user_new[0];
-			
-		if($id != -1) $_SESSION['user'] = $id; // запоминаем пользователя
-		echo $id;
-	}
+$login = $_POST['login'];
+$password = $_POST['password'];
+
+// проверка существования пользователя
+$check = $mysqli->query("SELECT * FROM `users` WHERE `login`='$login'");
+if($check->num_rows > 0) {
+    echo "-1";
+    exit();
+}
+
+// хешируем пароль
+$hash = password_hash($password, PASSWORD_DEFAULT);
+
+// сохраняем
+$mysqli->query("INSERT INTO `users` (`login`, `password`, `roll`) VALUES ('$login', '$hash', 0)");
+
+// получаем ID
+$user = $mysqli->query("SELECT * FROM `users` WHERE `login`='$login'")->fetch_row();
+$id = $user[0];
+
+$_SESSION['user'] = $id;
+echo $id;
 ?>
