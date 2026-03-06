@@ -65,6 +65,10 @@
 				var _login = document.getElementsByName("_login")[0].value;
 				var _password = document.getElementsByName("_password")[0].value;
 				var _passwordCopy = document.getElementsByName("_passwordCopy")[0].value;
+
+				if(!CheckPassword(_password)) {
+					return;
+				}
 				
 				if(_login != "") {
 					if(_password != "") {
@@ -111,7 +115,12 @@
 					} else alert("Введите пароль.");
 				} else alert("Введите логин.");
 			}
-			
+
+			function CheckPassword(value) {
+				let regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
+				return regex.test(value);
+			}
+
 			function PressToEnter(e) {
 				if (e.keyCode == 13) {
 					var _login = document.getElementsByName("_login")[0].value;

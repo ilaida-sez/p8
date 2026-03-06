@@ -4,6 +4,10 @@
 	
 	$login = $_POST['login'];
 	$password = $_POST['password'];
+
+	function checkPasswordComplexity($password) {
+		return preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password);
+	}
 	
 	// ищем пользователя
 	$query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='".$login."'");
