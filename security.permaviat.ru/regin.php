@@ -67,6 +67,7 @@
 				var _passwordCopy = document.getElementsByName("_passwordCopy")[0].value;
 
 				if(!CheckPassword(_password)) {
+					alert("Пароль должен содержать: минимум 8 символов, латинские буквы (заглавные и строчные), цифры и символы");
 					return;
 				}
 				
