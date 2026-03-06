@@ -15,6 +15,23 @@ if($query_user->num_rows == 1) {
     
     if(password_verify($password, $user_read['password'])){
         
+        // проверяем активную сессию
+        $current_time = time();
+        $last_activity_time = 0;
+        
+        if(!empty($user_read['last_activity'])) {
+            $last_activity_time = strtotime($user_read['last_activity']);
+        }
+        
+        // если есть активная сессия
+        if(!empty($user_read['session_token']) && ($current_time - $last_activity_time) < 1800) {
+            echo "already_logged_in";
+            exit();
+        }
+        
+        // очищаем старую сессию в любом случае
+        $mysqli->query("UPDATE `users` SET `session_token` = NULL, `last_activity` = NULL WHERE `id` = {$user_read['id']}");
+        
         // генерируем код
         $code = sprintf("%06d", random_int(0, 999999));
         
