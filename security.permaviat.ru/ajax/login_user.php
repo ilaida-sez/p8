@@ -5,18 +5,32 @@ include("../settings/connect_datebase.php");
 $login = $_POST['login'];
 $password = $_POST['password'];
 
-// ищем пользователя по логину
-$query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='".$login."'");
+$login = $mysqli->real_escape_string($login);
 
-$id = -1;
-if($user_read = $query_user->fetch_assoc()) {
-    if(password_verify($password, $user_read['password'])) {
-        $id = $user_read['id'];
+// ищем пользователя
+$query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='$login' LIMIT 1");
+
+if($query_user->num_rows == 1) {
+    $user_read = $query_user->fetch_assoc();
+    
+    if(password_verify($password, $user_read['password'])){
+        
+        // генерируем код
+        $code = sprintf("%06d", random_int(0, 999999));
+        
+        // сохраняем в сессию
+        $_SESSION['temp_user_id'] = $user_read['id'];
+        $_SESSION['auth_code'] = $code;
+        $_SESSION['code_expire'] = time() + 600;
+        $_SESSION['login_email'] = $login;
+        
+        // возвращаем код на фронт
+        echo "code_sent|" . $code;
+        
+    } else {
+        echo "error";
     }
+} else {
+    echo "error";
 }
-
-if($id != -1) {
-    $_SESSION['user'] = $id;
-}
-echo md5(md5($id));
 ?>

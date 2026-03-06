@@ -5,23 +5,22 @@ include("../settings/connect_datebase.php");
 $login = $_POST['login'];
 $password = $_POST['password'];
 
-// проверка существования пользователя
-$check = $mysqli->query("SELECT * FROM `users` WHERE `login`='$login'");
-if($check->num_rows > 0) {
-    echo "-1";
+if(strpos($login, '@') === false) {
+    echo "invalid_email";
     exit();
 }
 
-// хешируем пароль
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-// сохраняем
-$mysqli->query("INSERT INTO `users` (`login`, `password`, `roll`) VALUES ('$login', '$hash', 0)");
+$sql = "INSERT INTO `users` (`login`, `password`, `roll`) VALUES ('$login', '$hash', 0)";
+$mysqli->query($sql);
 
-// получаем ID
-$user = $mysqli->query("SELECT * FROM `users` WHERE `login`='$login'")->fetch_row();
-$id = $user[0];
-
-$_SESSION['user'] = $id;
-echo $id;
+if($mysqli->affected_rows > 0) {
+    $res = $mysqli->query("SELECT * FROM `users` WHERE `login`='$login'");
+    $user = $res->fetch_row();
+    $_SESSION['user'] = $user[0];
+    echo $user[0];
+} else {
+    echo "db_error";
+}
 ?>
